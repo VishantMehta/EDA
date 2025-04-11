@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 #reading dataset
-df = pd.read_csv('election_2024.csv')
+df = pd.read_csv("python datasetca.csv")
 print(df)
 
 #Exploring the dataset
@@ -13,6 +13,7 @@ missing = df.isnull().sum()
 print("Missing values in each column:\n", missing)
 print("Info:\n",df.info())
 print("Description:\n",df.describe())
+
 
 #-----Cleaning the dataset------------------------------------------------------------------------------------
 
@@ -56,18 +57,15 @@ for col in numeric_cols:
     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0) 
     print("After -", col, "Gaps:", df[col].isnull().sum())  
 
-#rechcek after cleaning
+#recheck after cleaning
 print("Final Size:", df.shape)  
 print("Any Gaps Left?:\n", df.isnull().sum())  
 print("Final Types:\n", df.dtypes)  
 
-
 #---------------------OBJ 1:-------------------------------------------------------------------------------------------------------
-
-
 #Objective 1: Analyze the Demographic Composition of Candidates
 colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F9A825', '#45B7D1']
-title_color = '#2C3E50'  # Dark blue
+title_color = '#2C3E50' 
 
 #1.1 Visualize the distribution of candidates by gender using a bar chart
 plt.figure(figsize=(8, 5))
@@ -92,18 +90,7 @@ plt.pie(category_counts, labels=category_counts.index, autopct='%1.1f%%', colors
 plt.title('1.3 Social Category Breakdown', fontsize=14, color=title_color)
 plt.show()
 
-# 1.4 gender representation across ten constituencies with the highest candidate counts(stacked bar chart)
-plt.figure(figsize=(12, 6))
-top_10_constituencies = df['PC Name'].value_counts().head(10).index  
-df_top_10 = df[df['PC Name'].isin(top_10_constituencies)]
-unique_genders = df_top_10['Gender'].nunique()  
-sns.countplot(data=df_top_10, x='PC Name', hue='Gender', palette=colors[:unique_genders], edgecolor='black', linewidth=1)
-plt.title('1.4 Gender in Top 10 Constituencies', fontsize=14, color=title_color)
-plt.xlabel('Constituency', fontsize=12)
-plt.ylabel('Candidate Count', fontsize=12)
-plt.xticks(rotation=45)  
-plt.legend(title='Gender')
-plt.show()
+
 
 #---------------------OBJ 2:-------------------------------------------------------------------------------------------------------
 
@@ -165,36 +152,21 @@ plt.xlabel('Social Category', fontsize=12)
 plt.ylabel('Votes Secured', fontsize=12)
 plt.show()
 
-# 3.3 Examine the number of winning candidates per social category(Stacked Bar Chart)
-winners = df.loc[df.groupby('PC Name')['Votes Secured - Total'].idxmax()]
-plt.figure(figsize=(10, 6))
-unique_categories = winners['Category'].nunique()
-sns.countplot(data=winners, x='Category', hue='Category', palette=colors[:unique_categories], edgecolor='black', linewidth=1, legend=False)
-plt.title('3.3 Winners by Category', fontsize=14, color=title_color)
-plt.xlabel('Social Category', fontsize=12)
-plt.ylabel('Number of Winners', fontsize=12)
-plt.show()
-
 #numerical summary for Objective 3 
 print("Vote Share by Category (%):\n", vote_share_by_category)
 print("Average Votes by Category:\n", df.groupby('Category')['Votes Secured - Total'].mean())
-print("Winners by Category:\n", winners['Category'].value_counts())
 
 #---------------------OBJ 4:-------------------------------------------------------------------------------------------------------
-
 #Objective 4:Voter Turnout Variations by State
+
 colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F9A825', '#45B7D1', 
           '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71']
 title_color = '#2C3E50'
-print("Columns I’m Using:", df.columns.tolist())
-print("\nFirst Few Rows:\n", df[['PC Name', 'Total Votes Polled In The Constituency', 'Total Electors']].head())
-#turnout percentage
+# Turnout percentage
 df['Voter Turnout (%)'] = (df['Total Votes Polled In The Constituency'] / df['Total Electors']) * 100
-#Splitting out states from constituency names
+# Splitting out states from constituency names
 df['State'] = df['PC Name'].str.split(' - ').str[0].str.strip()
-print("\nStates I Pulled Out:\n", df['State'].unique())
-
-#4.1 average voter turnout for top 10 states (Bar Chart)
+# average voter turnout for top 10 states (Bar Chart)
 plt.figure(figsize=(12, 6))
 state_turnout = df.groupby('State')['Voter Turnout (%)'].mean().sort_values(ascending=False).head(10)
 sns.barplot(x=state_turnout.index, y=state_turnout.values, hue=state_turnout.index, palette=colors[:10], edgecolor='black', linewidth=1, legend=False)
@@ -204,20 +176,8 @@ plt.ylabel('Average Turnout (%)', fontsize=12)
 plt.xticks(rotation=45)
 plt.show()
 
-#4.2 Turnout Spread by State (Box Chart)
-plt.figure(figsize=(14, 6))
-top_10_states = df.groupby('State')['Voter Turnout (%)'].mean().sort_values(ascending=False).head(10).index
-df_top_10 = df[df['State'].isin(top_10_states)]
-sns.boxplot(data=df_top_10, x='State', y='Voter Turnout (%)', hue='State', palette=colors[:10], legend=False)
-plt.title('4.2 Turnout Spread in Top 10 States', fontsize=14, color=title_color)
-plt.xlabel('State', fontsize=12)
-plt.ylabel('Voter Turnout (%)', fontsize=12)
-plt.xticks(rotation=45)
-plt.show()
-
 #Numerical summary for Objective 4 
 print("Average Turnout by State (Top 10):\n", state_turnout)
-print("\nTurnout Stats by State (Top 10):\n", df_top_10.groupby('State')['Voter Turnout (%)'].describe())
 
 #---------------------OBJ 5:-------------------------------------------------------------------------------------------------------
 
@@ -255,6 +215,7 @@ print("Average Votes by Type:\n", df[['Votes Secured - General', 'Votes Secured 
 print("\nHow Votes Relate:\n", df[['Votes Secured - General', 'Votes Secured - Postal', 'Votes Secured - Total']].corr())
 print("\nTop 10 Candidates by Votes:\n", top_10_candidates[['Candidate Name', 'PC Name', 'Votes Secured - General', 'Votes Secured - Postal', 'Votes Secured - Total']])
 
+
 #---------------------OBJ 6:-------------------------------------------------------------------------------------------------------
 
 #Objective 6: Correlations Between Electors and Vote Metrics
@@ -274,7 +235,7 @@ plt.title('6.1 How Electors, Votes Polled, and Valid Votes Connect', fontsize=14
 plt.show()
 
 #6.2 pairwise relationships among electors, votes polled, and valid votes(pairwise plot)
-pair_plot = sns.pairplot(df_metrics, diag_kind='hist', plot_kws={'color': colors[0]}, diag_kws={'color': colors[1]})
+pair_plot = sns.pairplot(df_metrics)
 pair_plot.fig.suptitle('6.2 Pairing Up Electors, Votes Polled, and Valid Votes', fontsize=14, color=title_color, y=1.02)
 plt.show()
 
@@ -285,36 +246,40 @@ print("\nBasic Stats:\n", df_metrics.describe())
 #---------------------OBJ 7:-------------------------------------------------------------------------------------------------------
 
 #Objective 7: Analyze the Prevalence and Distribution of NOTA Votes
+
 #Loading my original data
-df_original = pd.read_csv('election_2024.csv')
+df_original = pd.read_csv('python datasetca.csv')
 colors = ['#FF6F61', '#6B5B95', '#88B04B', '#F9A825', '#45B7D1', 
           '#D4A5A5', '#9B59B6', '#3498DB', '#E67E22', '#2ECC71']
 title_color = '#2C3E50'
 
-#Pulling states 
+# Pulling states
 df_original['State'] = df_original['PC Name'].str.split(' - ').str[0].str.strip()
 nota_df = df_original[df_original['Candidate Name'] == 'NOTA'].copy()
-#numeric consistency
+# Numeric consistency
 nota_df.loc[:, 'Votes Secured - Total'] = pd.to_numeric(nota_df['Votes Secured - Total'], errors='coerce').fillna(0)
-
-#7.1 Visualize the total NOTA votes for the top 10 states(Bar Chart)
-plt.figure(figsize=(12, 6))
+# Group by state and get top 10 based on NOTA votes
 nota_by_state = nota_df.groupby('State')['Votes Secured - Total'].sum().sort_values(ascending=False).head(10)
-sns.barplot(x=nota_by_state.index, y=nota_by_state.values, hue=nota_by_state.index, palette=colors[:10], edgecolor='black', linewidth=1, legend=False)
+
+# 7.1 Visualize the total NOTA votes for the top 10 states (Bar Chart)
+plt.figure(figsize=(12, 6))
+sns.barplot(x=nota_by_state.index, 
+            y=nota_by_state.values, 
+            hue=nota_by_state.index, 
+            palette=colors[:10], 
+            edgecolor='black', 
+            linewidth=1, 
+            legend=False)
+
 plt.title('7.1 Top 10 States for NOTA Votes', fontsize=14, color=title_color)
 plt.xlabel('State', fontsize=12)
 plt.ylabel('Total NOTA Votes', fontsize=12)
 plt.xticks(rotation=45)
 plt.show()
 
-#7.2 proportional distribution of NOTA votes among the top 10 states(Pie Chart)
+# 7.2 Proportional distribution of NOTA votes among the top 10 states (Pie Chart)
 plt.figure(figsize=(8, 8))
 nota_share = (nota_by_state / nota_by_state.sum()) * 100
 plt.pie(nota_share, labels=nota_share.index, autopct='%1.1f%%', colors=colors[:10])
 plt.title('7.2 NOTA Share in Top 10 States', fontsize=14, color=title_color)
 plt.show()
-
-# Numerical summary for Objective 7 
-print("NOTA Votes by State (Top 10):\n", nota_by_state)
-print("\nNOTA Share by State (Top 10, %):\n", nota_share)
-print("\nTotal NOTA Votes Overall:", nota_df['Votes Secured - Total'].sum())
